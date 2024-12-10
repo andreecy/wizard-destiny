@@ -1,6 +1,13 @@
 <script lang="ts">
   import { cardHeight, cardWidth } from '$lib/constants/card';
   import { css } from '$lib/css';
+  import type { Card } from '../../types';
+
+  interface CardProps {
+    data?: Card;
+  }
+
+  let { data }: CardProps = $props();
 </script>
 
 <div
@@ -17,5 +24,6 @@
     e.dataTransfer?.setData('text/plain', e.currentTarget.id);
   }}
 >
-  <p>card</p>
+  <p>{data?.name}</p>
+  <p>{data?.value}</p>
 </div>
