@@ -1,25 +1,41 @@
-<script>
+<script lang="ts">
   import CardSlot from './card-slot.svelte';
   import { css } from '$lib/css';
-  import { deck } from '$lib/stores/deck';
+
   import { mount, onMount } from 'svelte';
   import Card from './card.svelte';
+  import type { Card as CardType } from '../../types';
+  import { getGameplayState } from '$lib/stores/gameplay.svelte';
+  import type { Target } from '../../types';
 
-  function drawCard() {
-    $deck.shuffle();
-    const card = $deck.drawCard();
-    console.log(card);
-    return card;
+  const gameplayStore = getGameplayState();
+
+  /**
+   flow :
+   - start gameplay
+   - setiap kali ada action, setelah action dieksekusi, panggil gameplay.checkRefillFields()
+   - checkRefillFields akan draws kartu2 baru bila memenuhi kondisi
+   - setiap action DnD, check apakah targetnya dropable dengan function checkIsDropable
+   - dari result tersebut tentukan reactionnya
+  */
+
+  // akan return true bila targetnya sesuai, return false bila target tidak sesuai
+  function checkIsDropable(selectedCard: CardType, target: Target) {
+    return selectedCard.targets.includes(target);
   }
 
   onMount(() => {
-    const card = drawCard();
-    const target = document.querySelector('#slot-0');
+    // start gameplay
+    gameplayStore.startGameplay();
+
+    // preview slot 0
+    const slotIndex = 0;
+    const target = document.querySelector(`#slot-${slotIndex}`);
     if (target) {
       const cardEl = mount(Card, {
         target,
         props: {
-          data: card
+          data: gameplayStore.field[slotIndex]
         }
       });
     }
